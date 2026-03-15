@@ -1,0 +1,975 @@
+openapi: 3.1.0
+info:
+  title: Page MCP Market Backend API
+  version: 0.2.0
+servers:
+  - url: http://localhost:3000/api/v1
+
+tags:
+  - name: system
+  - name: repositories
+  - name: releases
+  - name: prompts
+  - name: resources
+  - name: tools
+
+paths:
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /repositories:
+    post:
+      tags: [repositories]
+      summary: Create repository
+      operationId: createRepository
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRepositoryRequest"
+      responses:
+        "201":
+          description: Repository created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepositoryDetail"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /repositories/search:
+    get:
+      tags: [repositories]
+      summary: Search repositories by name/domain
+      operationId: searchRepositories
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: domain
+          schema:
+            type: string
+        - in: query
+          name: authorId
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: Search result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchRepositoriesResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /repositories/rankings:
+    get:
+      tags: [repositories]
+      summary: Repository rankings
+      operationId: getRankings
+      parameters:
+        - in: query
+          name: window
+          schema:
+            type: string
+            enum: [1d, 7d, 30d]
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+        - in: query
+          name: domain
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Rankings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RankingsResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /repositories/{repositoryId}:
+    get:
+      tags: [repositories]
+      summary: Get repository detail
+      operationId: getRepositoryById
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+      responses:
+        "200":
+          description: Repository detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepositoryDetail"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      tags: [repositories]
+      summary: Update repository
+      operationId: updateRepository
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRepositoryRequest"
+      responses:
+        "200":
+          description: Updated repository
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepositoryDetail"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [repositories]
+      summary: Delete repository
+      operationId: deleteRepository
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+      responses:
+        "204":
+          description: Repository deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /repositories/{repositoryId}/content:
+    get:
+      tags: [repositories]
+      summary: Get repository content by path filter
+      operationId: getRepositoryContent
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+        - in: query
+          name: path
+          required: false
+          schema:
+            type: string
+        - in: query
+          name: release
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Filtered content
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepositoryContentResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /repositories/{repositoryId}/install:
+    get:
+      tags: [repositories]
+      summary: Get full release snapshot for extension install
+      operationId: getInstallSnapshot
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+        - in: query
+          name: release
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Install snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstallSnapshotResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /repositories/{repositoryId}/releases:
+    get:
+      tags: [releases]
+      summary: List release history
+      operationId: listReleases
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+      responses:
+        "200":
+          description: Release list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListReleasesResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      tags: [releases]
+      summary: Create release
+      operationId: createRelease
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReleaseRequest"
+      responses:
+        "201":
+          description: Created release
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepositoryRelease"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /repositories/{repositoryId}/releases/{version}:
+    patch:
+      tags: [releases]
+      summary: Update release
+      operationId: updateRelease
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+        - $ref: "#/components/parameters/Version"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReleaseRequest"
+      responses:
+        "200":
+          description: Updated release
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepositoryRelease"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [releases]
+      summary: Delete release
+      operationId: deleteRelease
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+        - $ref: "#/components/parameters/Version"
+      responses:
+        "204":
+          description: Release deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /repositories/{repositoryId}/prompts:
+    post:
+      tags: [prompts]
+      summary: Create prompt
+      operationId: createPrompt
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePromptRequest"
+      responses:
+        "201":
+          description: Created prompt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/McpPrompt"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+
+  /repositories/{repositoryId}/prompts/{itemId}:
+    patch:
+      tags: [prompts]
+      summary: Update prompt
+      operationId: updatePrompt
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+        - $ref: "#/components/parameters/ItemId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePromptRequest"
+      responses:
+        "200":
+          description: Updated prompt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/McpPrompt"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      tags: [prompts]
+      summary: Delete prompt
+      operationId: deletePrompt
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+        - $ref: "#/components/parameters/ItemId"
+      responses:
+        "204":
+          description: Prompt deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /repositories/{repositoryId}/resources:
+    post:
+      tags: [resources]
+      summary: Create resource
+      operationId: createResource
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateResourceRequest"
+      responses:
+        "201":
+          description: Created resource
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/McpResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+
+  /repositories/{repositoryId}/resources/{itemId}:
+    patch:
+      tags: [resources]
+      summary: Update resource
+      operationId: updateResource
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+        - $ref: "#/components/parameters/ItemId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateResourceRequest"
+      responses:
+        "200":
+          description: Updated resource
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/McpResource"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      tags: [resources]
+      summary: Delete resource
+      operationId: deleteResource
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+        - $ref: "#/components/parameters/ItemId"
+      responses:
+        "204":
+          description: Resource deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /repositories/{repositoryId}/tools:
+    post:
+      tags: [tools]
+      summary: Create tool
+      operationId: createTool
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateToolRequest"
+      responses:
+        "201":
+          description: Created tool
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/McpTool"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+
+  /repositories/{repositoryId}/tools/{itemId}:
+    patch:
+      tags: [tools]
+      summary: Update tool
+      operationId: updateTool
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+        - $ref: "#/components/parameters/ItemId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateToolRequest"
+      responses:
+        "200":
+          description: Updated tool
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/McpTool"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      tags: [tools]
+      summary: Delete tool
+      operationId: deleteTool
+      parameters:
+        - $ref: "#/components/parameters/RepositoryId"
+        - $ref: "#/components/parameters/ItemId"
+      responses:
+        "204":
+          description: Tool deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  parameters:
+    RepositoryId:
+      in: path
+      name: repositoryId
+      required: true
+      schema:
+        type: string
+    ItemId:
+      in: path
+      name: itemId
+      required: true
+      schema:
+        type: string
+    Version:
+      in: path
+      name: version
+      required: true
+      schema:
+        type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters or payload
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            badRequest:
+              value:
+                code: BAD_REQUEST
+                message: Invalid input
+                requestId: 8f9db5f0-9477-4cf2-8efd-af0f4f8b7f08
+    NotFound:
+      description: Requested entity was not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ValidationFailed:
+      description: Semantic validation failed (e.g., invalid regex)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+      required: [ok]
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        requestId:
+          type: string
+      required: [code, message, requestId]
+
+    Author:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      required: [id, name]
+
+    RepositorySummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        siteDomain:
+          type: string
+        author:
+          $ref: "#/components/schemas/Author"
+        starsCount:
+          type: integer
+        usageCount:
+          type: integer
+        lastActiveAt:
+          type: string
+          nullable: true
+        latestReleaseVersion:
+          type: string
+          nullable: true
+      required:
+        - id
+        - name
+        - description
+        - siteDomain
+        - author
+        - starsCount
+        - usageCount
+        - lastActiveAt
+        - latestReleaseVersion
+
+    RepositoryDetail:
+      allOf:
+        - $ref: "#/components/schemas/RepositorySummary"
+        - type: object
+          properties:
+            createdAt:
+              type: string
+            updatedAt:
+              type: string
+          required: [createdAt, updatedAt]
+
+    RepositoryRelease:
+      type: object
+      properties:
+        id:
+          type: string
+        repositoryId:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+          nullable: true
+        changelog:
+          type: string
+          nullable: true
+        isLatest:
+          type: boolean
+        createdAt:
+          type: string
+      required: [id, repositoryId, version, name, changelog, isLatest, createdAt]
+
+    McpPrompt:
+      type: object
+      properties:
+        id:
+          type: string
+        repositoryId:
+          type: string
+        releaseId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        arguments:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        messages:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        path:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required: [id, repositoryId, releaseId, name, description, path, createdAt, updatedAt]
+
+    McpResource:
+      type: object
+      properties:
+        id:
+          type: string
+        repositoryId:
+          type: string
+        releaseId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        uri:
+          type: string
+        mimeType:
+          type: string
+        path:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required: [id, repositoryId, releaseId, name, description, uri, path, createdAt, updatedAt]
+
+    McpTool:
+      type: object
+      properties:
+        id:
+          type: string
+        repositoryId:
+          type: string
+        releaseId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        inputSchema:
+          type: object
+          additionalProperties: true
+        execute:
+          type: string
+        path:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required: [id, repositoryId, releaseId, name, description, execute, path, createdAt, updatedAt]
+
+    GroupedMcp:
+      type: object
+      properties:
+        prompts:
+          type: array
+          items:
+            $ref: "#/components/schemas/McpPrompt"
+        resources:
+          type: array
+          items:
+            $ref: "#/components/schemas/McpResource"
+        tools:
+          type: array
+          items:
+            $ref: "#/components/schemas/McpTool"
+      required: [prompts, resources, tools]
+
+    RankingItem:
+      allOf:
+        - $ref: "#/components/schemas/RepositorySummary"
+        - type: object
+          properties:
+            score:
+              type: number
+          required: [score]
+
+    SearchRepositoriesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/RankingItem"
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+      required: [items, page, pageSize, total]
+
+    RankingsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/RankingItem"
+      required: [items]
+
+    RepositoryContentResponse:
+      type: object
+      properties:
+        repository:
+          $ref: "#/components/schemas/RepositorySummary"
+        release:
+          $ref: "#/components/schemas/RepositoryRelease"
+        mcp:
+          $ref: "#/components/schemas/GroupedMcp"
+      required: [repository, release, mcp]
+
+    ListReleasesResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/RepositoryRelease"
+      required: [items]
+
+    InstallSnapshotResponse:
+      type: object
+      properties:
+        repository:
+          $ref: "#/components/schemas/RepositorySummary"
+        release:
+          $ref: "#/components/schemas/RepositoryRelease"
+        snapshot:
+          type: object
+          properties:
+            mcp:
+              $ref: "#/components/schemas/GroupedMcp"
+          required: [mcp]
+        integrity:
+          type: object
+          properties:
+            algorithm:
+              type: string
+              enum: [sha256]
+            digest:
+              type: string
+          required: [algorithm, digest]
+      required: [repository, release, snapshot, integrity]
+
+    CreateRepositoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        siteDomain:
+          type: string
+        authorId:
+          type: string
+        authorName:
+          type: string
+      required: [name, siteDomain, authorId, authorName]
+
+    UpdateRepositoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        siteDomain:
+          type: string
+
+    CreateReleaseRequest:
+      type: object
+      properties:
+        version:
+          type: string
+        name:
+          type: string
+        changelog:
+          type: string
+        isLatest:
+          type: boolean
+      required: [version]
+
+    UpdateReleaseRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        changelog:
+          type: string
+        isLatest:
+          type: boolean
+
+    CreatePromptRequest:
+      type: object
+      properties:
+        release:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        arguments:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        messages:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        path:
+          type: string
+      required: [release, name, path]
+
+    UpdatePromptRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        arguments:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        messages:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        path:
+          type: string
+
+    CreateResourceRequest:
+      type: object
+      properties:
+        release:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        uri:
+          type: string
+        mimeType:
+          type: string
+        path:
+          type: string
+      required: [release, name, uri, path]
+
+    UpdateResourceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        uri:
+          type: string
+        mimeType:
+          type: string
+        path:
+          type: string
+
+    CreateToolRequest:
+      type: object
+      properties:
+        release:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        inputSchema:
+          type: object
+          additionalProperties: true
+        execute:
+          type: string
+        path:
+          type: string
+      required: [release, name, execute, path]
+
+    UpdateToolRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        inputSchema:
+          type: object
+          additionalProperties: true
+        execute:
+          type: string
+        path:
+          type: string

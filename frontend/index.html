@@ -1,0 +1,54 @@
+<!doctype html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="page-mcp-install-target" content="1">
+  <title>MCP Skill Marketplace</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0969da',
+            'background-light': '#ffffff',
+            'background-dark': '#0d1117',
+            'surface-light': '#f6f8fa',
+            'surface-dark': '#161b22',
+            'border-light': '#d0d7de',
+            'border-dark': '#30363d',
+            'text-light': '#24292f',
+            'text-dark': '#c9d1d9',
+            'text-muted-light': '#57606a',
+            'text-muted-dark': '#8b949e',
+            'badge-blue': '#0969da',
+            'badge-green': '#1f883d',
+            'badge-purple': '#8250df',
+            'code-bg-light': '#f6f8fa',
+            'code-bg-dark': '#161b22',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
+          },
+          borderRadius: {
+            DEFAULT: '0.375rem',
+          },
+        },
+      },
+    };
+  </script>
+</head>
+
+<body
+  class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark font-sans antialiased flex flex-col min-h-screen">
+  <div id="root" class="flex-grow flex flex-col w-full"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>
