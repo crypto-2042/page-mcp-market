@@ -10,4 +10,4 @@ const service = new RepositoryService(store);
 const config = getConfig();
 const syncService = new SyncService(store, config.githubToken);
 
-export default createApp(service, { syncService, syncSecret: config.syncSecret }).fetch;
+export default createApp(service, { syncService, syncSecret: config.syncSecret });
