@@ -10,7 +10,11 @@ export function getDbClient(): Queryable {
     if (!config.databaseUrl) {
       throw new Error('DATABASE_URL is required');
     }
-    pool = new Pool({ connectionString: config.databaseUrl });
+    let connectionString = config.databaseUrl;
+    if (connectionString.includes('sslmode=') && !connectionString.includes('uselibpqcompat=')) {
+      connectionString += connectionString.includes('?') ? '&uselibpqcompat=true' : '?uselibpqcompat=true';
+    }
+    pool = new Pool({ connectionString });
   }
 
   return {
