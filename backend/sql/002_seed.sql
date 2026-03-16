@@ -4,7 +4,8 @@ VALUES
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;
 
 INSERT INTO repositories (
-  id, name, description, site_domain, author_id, stars_count, usage_count, last_active_at
+  id, name, description, site_domain, author_id, stars_count, usage_count,
+  last_active_at, github_owner, github_repo, default_branch, sync_enabled
 )
 VALUES
   (
@@ -15,7 +16,11 @@ VALUES
     '11111111-1111-1111-1111-111111111111',
     0,
     0,
-    NOW() - INTERVAL '1 day'
+    NOW() - INTERVAL '1 day',
+    'crypto-2042',
+    'github-assistant',
+    'main',
+    true
   )
 ON CONFLICT (id) DO UPDATE
 SET
@@ -26,4 +31,8 @@ SET
   stars_count = EXCLUDED.stars_count,
   usage_count = EXCLUDED.usage_count,
   last_active_at = EXCLUDED.last_active_at,
+  github_owner = EXCLUDED.github_owner,
+  github_repo = EXCLUDED.github_repo,
+  default_branch = EXCLUDED.default_branch,
+  sync_enabled = EXCLUDED.sync_enabled,
   updated_at = NOW();

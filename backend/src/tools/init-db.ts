@@ -12,12 +12,8 @@ async function main(): Promise<void> {
   const client = await pool.connect();
   try {
     const schemaSql = readFileSync(resolve(process.cwd(), 'sql/001_init.sql'), 'utf8');
-    const syncSchemaSql = readFileSync(resolve(process.cwd(), 'sql/003_sync_schema.sql'), 'utf8');
-    const protocolMigrationSql = readFileSync(resolve(process.cwd(), 'sql/004_protocol_3_1.sql'), 'utf8');
     const seedSql = readFileSync(resolve(process.cwd(), 'sql/002_seed.sql'), 'utf8');
     await client.query(schemaSql);
-    await client.query(syncSchemaSql);
-    await client.query(protocolMigrationSql);
     await client.query(seedSql);
     // eslint-disable-next-line no-console
     console.log('Database initialized with schema + seed.');
