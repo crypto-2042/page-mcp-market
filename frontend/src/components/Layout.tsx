@@ -29,7 +29,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
           <nav className="hidden md:flex gap-6 ml-6">
             <Link className="text-sm font-medium hover:text-primary transition-colors" to="/">Explore</Link>
-            <a className="text-sm font-medium hover:text-primary transition-colors text-text-muted-light dark:text-text-muted-dark" href="#">Documentation</a>
+            <Link className="text-sm font-medium hover:text-primary transition-colors text-text-muted-light dark:text-text-muted-dark" to="/docs">Documentation</Link>
             <a className="text-sm font-medium hover:text-primary transition-colors text-text-muted-light dark:text-text-muted-dark" href="#">Publish Skill</a>
           </nav>
           <div className="flex-1"></div>
@@ -63,7 +63,7 @@ export function Layout({ children }: LayoutProps) {
             <a className="hover:text-primary transition-colors" href="#">Privacy</a>
             <a className="hover:text-primary transition-colors" href="#">Security</a>
             <a className="hover:text-primary transition-colors" href="#">Status</a>
-            <a className="hover:text-primary transition-colors" href="#">Docs</a>
+            <Link className="hover:text-primary transition-colors" to="/docs">Docs</Link>
           </div>
         </div>
       </footer>
