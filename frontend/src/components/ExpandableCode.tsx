@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useI18n } from '../i18n/I18nProvider';
 
 interface ExpandableCodeProps {
   label: string;
@@ -7,6 +8,7 @@ interface ExpandableCodeProps {
 
 export function ExpandableCode({ label, content }: ExpandableCodeProps) {
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
 
   return (
     <div className="mt-4 border border-border-light dark:border-border-dark rounded overflow-hidden">
@@ -15,7 +17,7 @@ export function ExpandableCode({ label, content }: ExpandableCodeProps) {
         <button
           className="text-primary hover:text-blue-700 text-xs font-semibold transition-colors"
           onClick={() => setOpen((value) => !value)} type="button">
-          {open ? 'Hide' : 'Show'}
+          {open ? t('common.hide') : t('common.show')}
         </button>
       </div>
       {open ? (

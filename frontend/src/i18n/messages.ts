@@ -13,6 +13,8 @@ export const messages: Record<Locale, Record<string, string>> = {
     'footer.security': 'Security',
     'footer.status': 'Status',
     'footer.docs': 'Docs',
+    'common.show': 'Show',
+    'common.hide': 'Hide',
     'error.unknown': 'Unknown error',
     'home.hero.title': 'Find MCP Skills & Tools',
     'home.hero.subtitle':
@@ -124,6 +126,8 @@ export const messages: Record<Locale, Record<string, string>> = {
     'footer.security': '安全',
     'footer.status': '状态',
     'footer.docs': '文档',
+    'common.show': '展开',
+    'common.hide': '收起',
     'error.unknown': '未知错误',
     'home.hero.title': '发现 MCP 技能与工具',
     'home.hero.subtitle':
