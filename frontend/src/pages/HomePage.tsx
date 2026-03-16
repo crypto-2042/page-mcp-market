@@ -2,8 +2,10 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { searchRepositories } from '../lib/api';
 import type { RepositorySummary } from '../lib/types';
+import { useI18n } from '../i18n/I18nProvider';
 
 export function HomePage() {
+  const { t } = useI18n();
   const [searchValue, setSearchValue] = useState('');
   const [searchType, setSearchType] = useState<'name' | 'domain'>('name');
   const [items, setItems] = useState<RepositorySummary[]>([]);
@@ -23,7 +25,7 @@ export function HomePage() {
       const result = await searchRepositories({ q, domain });
       setItems(result.items);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : t('error.unknown'));
     } finally {
       setLoading(false);
     }
@@ -48,9 +50,9 @@ export function HomePage() {
     <main className="flex-grow flex flex-col max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-12 gap-8">
       <div className="w-full">
         <form className="mb-12 text-center md:text-left" onSubmit={onSubmit}>
-          <h1 className="text-3xl font-bold mb-4">Find MCP Skills &amp; Tools</h1>
+          <h1 className="text-3xl font-bold mb-4">{t('home.hero.title')}</h1>
           <p className="text-text-muted-light dark:text-text-muted-dark mb-8 max-w-3xl">
-            Discover, install, and integrate pre-built tools and workflows to enhance your AI agents via the Model Context Protocol.
+            {t('home.hero.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 max-w-3xl">
             <div className="relative sm:w-48 flex-shrink-0">
@@ -59,8 +61,8 @@ export function HomePage() {
                 onChange={(event) => setSearchType(event.target.value as 'name' | 'domain')}
                 className="w-full bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark text-text-light dark:text-text-dark rounded-full py-4 px-6 appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow text-base h-full cursor-pointer"
               >
-                <option value="name">Name</option>
-                <option value="domain">Domain</option>
+                <option value="name">{t('home.search.type.name')}</option>
+                <option value="domain">{t('home.search.type.domain')}</option>
               </select>
             </div>
             <div className="relative flex-grow">
@@ -69,30 +71,34 @@ export function HomePage() {
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
                 className="w-full bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark text-text-light dark:text-text-dark rounded-full py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow text-lg"
-                placeholder={searchType === 'name' ? 'Search by repository name...' : 'Search by domain...'}
+                placeholder={
+                  searchType === 'name'
+                    ? t('home.search.placeholder.name')
+                    : t('home.search.placeholder.domain')
+                }
                 type="text"
               />
             </div>
             <button
               type="submit"
               className="bg-primary hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-full transition-colors hidden sm:block">
-              Search
+              {t('home.search.submit')}
             </button>
             <button
               type="button"
               onClick={onReset}
               className="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium py-3 px-6 rounded-full transition-colors hidden sm:block">
-              Reset
+              {t('home.search.reset')}
             </button>
           </div>
         </form>
 
-        {loading ? <p className="text-text-muted-light dark:text-text-muted-dark mb-4">Loading repositories...</p> : null}
+        {loading ? <p className="text-text-muted-light dark:text-text-muted-dark mb-4">{t('home.loading')}</p> : null}
         {error ? <p className="text-red-500 mb-4">{error}</p> : null}
 
         <div>
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-semibold">Featured Repositories</h2>
+            <h2 className="text-2xl font-semibold">{t('home.featured.title')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map((repo) => (
@@ -101,7 +107,7 @@ export function HomePage() {
                   <h3 className="text-lg font-semibold text-primary hover:underline cursor-pointer">{repo.name}</h3>
                 </div>
                 <p className="text-sm text-text-muted-light dark:text-text-muted-dark mb-6 flex-grow leading-relaxed">
-                  {repo.description ?? 'No description'}
+                  {repo.description ?? t('home.repository.noDescription')}
                 </p>
                 <div className="flex flex-wrap items-center gap-2 mb-6">
                   {repo.siteDomain && (
@@ -134,7 +140,7 @@ export function HomePage() {
           {items.length === 0 && !loading && !error && (
             <div className="text-center py-12 text-text-muted-light dark:text-text-muted-dark">
               <span className="material-icons text-4xl mb-4 opacity-50">search_off</span>
-              <p>No repositories found</p>
+              <p>{t('home.empty')}</p>
             </div>
           )}
         </div>

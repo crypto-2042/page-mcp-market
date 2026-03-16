@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ExpandableCode } from '../components/ExpandableCode';
+import { useI18n } from '../i18n/I18nProvider';
 import {
   getRepository,
   getRepositoryContent,
@@ -17,6 +18,7 @@ import type {
 } from '../lib/types';
 
 type ToastState = { type: 'success' | 'error'; message: string } | null;
+type TFunc = (key: string) => string;
 
 const EMPTY_MCP: GroupedMcpResponse = {
   prompts: [],
@@ -49,7 +51,7 @@ function PathBadge({ path }: { path: string }) {
   );
 }
 
-function PromptCard({ item }: { item: McpPrompt }) {
+function PromptCard({ item, t }: { item: McpPrompt; t: TFunc }) {
   return (
     <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg p-5 shadow-sm">
       <div className="flex items-center gap-3 mb-2">
@@ -60,16 +62,17 @@ function PromptCard({ item }: { item: McpPrompt }) {
         {item.description}
       </p>
       <div className="text-sm text-text-muted-light dark:text-text-muted-dark">
-        Arguments: {item.arguments?.length ?? 0} | Messages: {item.messages?.length ?? 0}
+        {t('repo.prompt.arguments')}: {item.arguments?.length ?? 0} | {t('repo.prompt.messages')}:{' '}
+        {item.messages?.length ?? 0}
       </div>
       {item.messages && item.messages.length > 0 ? (
-        <ExpandableCode label="messages" content={JSON.stringify(item.messages, null, 2)} />
+        <ExpandableCode label={t('repo.code.messages')} content={JSON.stringify(item.messages, null, 2)} />
       ) : null}
     </div>
   );
 }
 
-function ResourceCard({ item }: { item: McpResource }) {
+function ResourceCard({ item, t }: { item: McpResource; t: TFunc }) {
   return (
     <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg p-5 shadow-sm">
       <div className="flex items-center gap-3 mb-2">
@@ -80,14 +83,14 @@ function ResourceCard({ item }: { item: McpResource }) {
         {item.description}
       </p>
       <div className="text-sm text-text-muted-light dark:text-text-muted-dark space-y-1">
-        <div>URI: {item.uri}</div>
-        <div>MIME: {item.mimeType ?? 'unknown'}</div>
+        <div>{t('repo.resource.uri')}: {item.uri}</div>
+        <div>{t('repo.resource.mime')}: {item.mimeType ?? t('repo.resource.unknown')}</div>
       </div>
     </div>
   );
 }
 
-function ToolCard({ item }: { item: McpTool }) {
+function ToolCard({ item, t }: { item: McpTool; t: TFunc }) {
   return (
     <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg p-5 shadow-sm">
       <div className="flex items-center gap-3 mb-2">
@@ -98,14 +101,15 @@ function ToolCard({ item }: { item: McpTool }) {
         {item.description}
       </p>
       {item.inputSchema ? (
-        <ExpandableCode label="inputSchema" content={JSON.stringify(item.inputSchema, null, 2)} />
+        <ExpandableCode label={t('repo.tool.inputSchema')} content={JSON.stringify(item.inputSchema, null, 2)} />
       ) : null}
-      <ExpandableCode label="execute" content={item.execute} />
+      <ExpandableCode label={t('repo.tool.execute')} content={item.execute} />
     </div>
   );
 }
 
 export function RepositoryDetailPage() {
+  const { t } = useI18n();
   const { repositoryId = '' } = useParams();
   const [detail, setDetail] = useState<RepositoryDetail | null>(null);
   const [releases, setReleases] = useState<RepositoryRelease[]>([]);
@@ -122,7 +126,7 @@ export function RepositoryDetailPage() {
 
     const extId = document.querySelector('meta[name="page-mcp-extension-id"]')?.getAttribute('content');
     if (!extId) {
-      setToast({ type: 'error', message: '未找到插件，请确保已安装 page-mcp 插件。' });
+      setToast({ type: 'error', message: t('repo.install.notFound') });
       return;
     }
 
@@ -146,7 +150,7 @@ export function RepositoryDetailPage() {
       await new Promise((resolve, reject) => {
         const chrome = (window as Window & { chrome?: any }).chrome;
         if (!chrome?.runtime?.sendMessage) {
-          reject(new Error('当前浏览器不支持或插件未安装'));
+          reject(new Error(t('repo.install.unsupported')));
           return;
         }
 
@@ -157,7 +161,7 @@ export function RepositoryDetailPage() {
             return;
           }
           if (!resp?.ok) {
-            reject(new Error(resp?.error || '安装失败'));
+            reject(new Error(resp?.error || t('repo.install.failed')));
             return;
           }
           resolve(resp.record);
@@ -167,9 +171,9 @@ export function RepositoryDetailPage() {
       const newInstalledRelease = installSnapshot.release.version || selectedRelease;
       writeInstalledReleaseMeta(newInstalledRelease);
       setInstalledRelease(newInstalledRelease);
-      setToast({ type: 'success', message: `安装成功：${newInstalledRelease}` });
+      setToast({ type: 'success', message: `${t('repo.install.success')}${newInstalledRelease}` });
     } catch (err) {
-      setToast({ type: 'error', message: err instanceof Error ? err.message : '安装失败' });
+      setToast({ type: 'error', message: err instanceof Error ? err.message : t('repo.install.failed') });
     } finally {
       setInstalling(false);
     }
@@ -213,7 +217,7 @@ export function RepositoryDetailPage() {
         setSelectedRelease(repoReleases[0]?.version ?? '');
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Unknown error');
+          setError(err instanceof Error ? err.message : t('error.unknown'));
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -238,7 +242,7 @@ export function RepositoryDetailPage() {
         setMcp(content.mcp);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Unknown error');
+          setError(err instanceof Error ? err.message : t('error.unknown'));
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -254,12 +258,12 @@ export function RepositoryDetailPage() {
   const totalItems = mcp.prompts.length + mcp.resources.length + mcp.tools.length;
   const isEmptyRelease = totalItems === 0;
   const installActionLabel = installing
-    ? '安装中...'
+    ? t('repo.install.action.installing')
     : !installedRelease
-      ? '安装'
+      ? t('repo.install.action.install')
       : installedRelease === selectedRelease
-        ? '已安装'
-        : '更新';
+        ? t('repo.install.action.installed')
+        : t('repo.install.action.update');
   const installActionIcon = installing
     ? 'hourglass_empty'
     : !installedRelease
@@ -277,14 +281,14 @@ export function RepositoryDetailPage() {
             to="/"
             className="text-primary hover:underline text-sm font-medium flex items-center gap-1 mb-6 transition-colors"
           >
-            <span className="material-icons text-sm">arrow_back</span> Back to repositories
+            <span className="material-icons text-sm">arrow_back</span> {t('repo.backToList')}
           </Link>
         </div>
 
         <div className="mb-8 border-b border-border-light dark:border-border-dark pb-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl font-semibold flex items-center flex-wrap gap-3">
-              <span>{detail?.name ?? 'Repository Detail'}</span>
+              <span>{detail?.name ?? t('repo.title.fallback')}</span>
               {selectedRelease ? (
                 <span className="text-sm px-2 py-0.5 mt-1 rounded-full border border-border-light dark:border-border-dark text-text-muted-light dark:text-text-muted-dark bg-gray-50 dark:bg-gray-800">
                   {selectedRelease}
@@ -317,11 +321,11 @@ export function RepositoryDetailPage() {
             </div>
           </div>
           <p className="text-lg text-text-muted-light dark:text-text-muted-dark mb-6">
-            {detail?.description ?? 'No description provided.'}
+            {detail?.description ?? t('repo.description.empty')}
           </p>
         </div>
 
-        {loading ? <p className="text-text-muted-light dark:text-text-muted-dark py-4">Loading content...</p> : null}
+        {loading ? <p className="text-text-muted-light dark:text-text-muted-dark py-4">{t('repo.loading')}</p> : null}
         {error ? <p className="text-red-500 py-4">{error}</p> : null}
 
         <article className="prose dark:prose-invert max-w-none">
@@ -331,7 +335,7 @@ export function RepositoryDetailPage() {
                 extension_off
               </span>
               <p className="text-text-muted-light dark:text-text-muted-dark mb-0">
-                This release has no MCP items yet.
+                {t('repo.emptyRelease')}
               </p>
             </div>
           ) : null}
@@ -339,11 +343,11 @@ export function RepositoryDetailPage() {
           {mcp.tools.length > 0 ? (
             <div className="mb-10">
               <h2 className="text-2xl font-semibold border-b border-border-light dark:border-border-dark pb-2 mt-8 mb-6">
-                Tools ({mcp.tools.length})
+                {t('repo.section.tools')} ({mcp.tools.length})
               </h2>
               <div className="space-y-6">
                 {mcp.tools.map((item) => (
-                  <ToolCard key={item.id} item={item} />
+                  <ToolCard key={item.id} item={item} t={t} />
                 ))}
               </div>
             </div>
@@ -352,11 +356,11 @@ export function RepositoryDetailPage() {
           {mcp.resources.length > 0 ? (
             <div className="mb-10">
               <h2 className="text-2xl font-semibold border-b border-border-light dark:border-border-dark pb-2 mt-8 mb-6">
-                Resources ({mcp.resources.length})
+                {t('repo.section.resources')} ({mcp.resources.length})
               </h2>
               <div className="space-y-6">
                 {mcp.resources.map((item) => (
-                  <ResourceCard key={item.id} item={item} />
+                  <ResourceCard key={item.id} item={item} t={t} />
                 ))}
               </div>
             </div>
@@ -365,11 +369,11 @@ export function RepositoryDetailPage() {
           {mcp.prompts.length > 0 ? (
             <div className="mb-10">
               <h2 className="text-2xl font-semibold border-b border-border-light dark:border-border-dark pb-2 mt-8 mb-6">
-                Prompts ({mcp.prompts.length})
+                {t('repo.section.prompts')} ({mcp.prompts.length})
               </h2>
               <div className="space-y-6">
                 {mcp.prompts.map((item) => (
-                  <PromptCard key={item.id} item={item} />
+                  <PromptCard key={item.id} item={item} t={t} />
                 ))}
               </div>
             </div>
@@ -381,7 +385,7 @@ export function RepositoryDetailPage() {
         {releases.length > 0 ? (
           <div className="border-b border-border-light dark:border-border-dark pb-6">
             <h3 className="text-sm font-semibold mb-3 uppercase tracking-wide text-text-muted-light dark:text-text-muted-dark">
-              Releases
+              {t('repo.sidebar.releases')}
             </h3>
             <div className="flex flex-col gap-2">
               {releases.map((release) => (
@@ -405,18 +409,18 @@ export function RepositoryDetailPage() {
         {detail ? (
           <div className="border-b border-border-light dark:border-border-dark pb-6">
             <h3 className="text-sm font-semibold mb-3 uppercase tracking-wide text-text-muted-light dark:text-text-muted-dark">
-              Repository Details
+              {t('repo.sidebar.details')}
             </h3>
             <div className="space-y-3">
               <div>
                 <div className="text-xs text-text-muted-light dark:text-text-muted-dark font-semibold mb-1">
-                  Author
+                  {t('repo.sidebar.author')}
                 </div>
                 <div className="text-sm font-medium">{detail.author.name}</div>
               </div>
               <div>
                 <div className="text-xs text-text-muted-light dark:text-text-muted-dark font-semibold mb-1">
-                  Domain
+                  {t('repo.sidebar.domain')}
                 </div>
                 <div className="text-sm font-medium">
                   {detail.siteDomain ? (
@@ -424,14 +428,14 @@ export function RepositoryDetailPage() {
                       {detail.siteDomain}
                     </span>
                   ) : (
-                    'Global'
+                    t('repo.sidebar.global')
                   )}
                 </div>
               </div>
               {detail.score !== undefined ? (
                 <div>
                   <div className="text-xs text-text-muted-light dark:text-text-muted-dark font-semibold mb-1">
-                    Score
+                    {t('repo.sidebar.score')}
                   </div>
                   <div className="text-sm font-medium flex items-center gap-1">
                     <span className="material-icons text-sm text-yellow-500">star</span> {detail.score.toFixed(1)}
