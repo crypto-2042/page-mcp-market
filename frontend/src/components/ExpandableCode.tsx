@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { useI18n } from '../i18n/I18nProvider';
 
 interface ExpandableCodeProps {
@@ -9,17 +9,26 @@ interface ExpandableCodeProps {
 export function ExpandableCode({ label, content }: ExpandableCodeProps) {
   const [open, setOpen] = useState(false);
   const { t } = useI18n();
+  const codeRegionId = useId();
+  const toggleId = `${codeRegionId}-toggle`;
 
   return (
     <div className={open ? 'expandable-code is-open' : 'expandable-code'}>
       <div className="expandable-code__header">
         <span className="expandable-code__label">{label}</span>
-        <button className="expandable-code__toggle" onClick={() => setOpen((value) => !value)} type="button">
+        <button
+          aria-controls={codeRegionId}
+          aria-expanded={open}
+          className="expandable-code__toggle"
+          id={toggleId}
+          onClick={() => setOpen((value) => !value)}
+          type="button"
+        >
           {open ? t('common.hide') : t('common.show')}
         </button>
       </div>
       {open ? (
-        <pre className="expandable-code__body">
+        <pre aria-labelledby={toggleId} className="expandable-code__body" id={codeRegionId} role="region">
           <code>{content}</code>
         </pre>
       ) : null}

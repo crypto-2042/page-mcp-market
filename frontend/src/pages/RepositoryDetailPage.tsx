@@ -267,12 +267,26 @@ export function RepositoryDetailPage() {
       : installedRelease === selectedRelease
         ? 'check_circle'
         : 'upgrade';
-  const installDisabled = installing || (installedRelease !== '' && installedRelease === selectedRelease);
+  const installDisabled = !detail || installing || (installedRelease !== '' && installedRelease === selectedRelease);
+  const politeAnnouncement = toast?.type === 'success'
+    ? toast.message
+    : installing
+      ? t('repo.install.action.installing')
+      : loading
+        ? t('repo.loading')
+        : '';
+  const assertiveAnnouncement = toast?.type === 'error' ? toast.message : error ?? '';
 
   return (
     <main className="repository-page">
       <section className="page-section page-section--light repository-hero">
         <div className="shell-container repository-hero__inner">
+          <div aria-atomic="true" aria-live="polite" className="sr-only">
+            {politeAnnouncement}
+          </div>
+          <div aria-atomic="true" aria-live="assertive" className="sr-only">
+            {assertiveAnnouncement}
+          </div>
           <Link
             to="/"
             className="back-link"
@@ -292,6 +306,7 @@ export function RepositoryDetailPage() {
 
             <div className="repository-hero__actions">
               <button
+                aria-disabled={installDisabled}
                 onClick={handleInstall}
                 disabled={installDisabled}
                 className={installDisabled ? 'site-button is-disabled' : 'site-button'}
@@ -299,7 +314,16 @@ export function RepositoryDetailPage() {
                 <span className="material-icons">{installActionIcon}</span>
                 {installActionLabel}
               </button>
-              {toast ? <div className={`toast toast--${toast.type}`}>{toast.message}</div> : null}
+              {toast ? (
+                <div
+                  aria-atomic="true"
+                  aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
+                  className={`toast toast--${toast.type}`}
+                  role={toast.type === 'error' ? 'alert' : 'status'}
+                >
+                  {toast.message}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -314,6 +338,7 @@ export function RepositoryDetailPage() {
                 <div className="release-list">
                   {releases.map((release) => (
                     <button
+                      aria-pressed={release.version === selectedRelease}
                       key={release.id}
                       className={release.version === selectedRelease ? 'release-button is-active' : 'release-button'}
                       onClick={() => setSelectedRelease(release.version)}
@@ -359,8 +384,16 @@ export function RepositoryDetailPage() {
           </aside>
 
           <div className="repository-content__main">
-            {loading ? <p className="state-message">{t('repo.loading')}</p> : null}
-            {error ? <p className="state-message state-message--error">{error}</p> : null}
+            {loading ? (
+              <p aria-atomic="true" aria-live="polite" className="state-message" role="status">
+                {t('repo.loading')}
+              </p>
+            ) : null}
+            {error ? (
+              <p aria-atomic="true" aria-live="assertive" className="state-message state-message--error" role="alert">
+                {error}
+              </p>
+            ) : null}
 
             {isEmptyRelease && !loading && !error ? (
               <section className="repository-section">
