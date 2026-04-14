@@ -11,6 +11,7 @@ export function HomePage() {
   const [items, setItems] = useState<RepositorySummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   async function loadData(nextSearchValue?: string, nextSearchType?: 'name' | 'domain') {
     setLoading(true);
@@ -27,6 +28,7 @@ export function HomePage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : t('error.unknown'));
     } finally {
+      setHasLoaded(true);
       setLoading(false);
     }
   }
@@ -46,17 +48,25 @@ export function HomePage() {
     void loadData('', 'name');
   }
 
+  const stateAnnouncement = loading
+    ? t('home.loading')
+    : error
+      ? error
+      : hasLoaded && items.length === 0
+        ? t('home.empty')
+        : '';
+
   return (
     <main className="home-page">
       <section className="page-section page-section--dark home-hero">
         <div className="shell-container home-hero__inner">
-          <div className="eyebrow">MCP Marketplace</div>
+          <div className="eyebrow">{t('home.hero.eyebrow')}</div>
           <h1 className="hero-title">{t('home.hero.title')}</h1>
           <p className="hero-copy">{t('home.hero.subtitle')}</p>
 
           <form className="search-panel" onSubmit={onSubmit}>
             <label className="search-panel__field search-panel__field--select">
-              <span className="search-panel__label">{t('home.search.type.name')}</span>
+              <span className="search-panel__label">{t('home.search.mode')}</span>
               <select
                 value={searchType}
                 onChange={(event) => setSearchType(event.target.value as 'name' | 'domain')}
@@ -68,7 +78,7 @@ export function HomePage() {
             </label>
 
             <label className="search-panel__field search-panel__field--input">
-              <span className="search-panel__label">{t('home.search.submit')}</span>
+              <span className="search-panel__label">{t('home.search.query')}</span>
               <input
                 value={searchValue}
                 onChange={(event) => setSearchValue(event.target.value)}
@@ -99,6 +109,15 @@ export function HomePage() {
           <div className="section-heading">
             <h2>{t('home.featured.title')}</h2>
           </div>
+
+          <p
+            className="sr-only"
+            aria-live={error ? 'assertive' : 'polite'}
+            aria-atomic="true"
+            role={error ? 'alert' : 'status'}
+          >
+            {stateAnnouncement}
+          </p>
 
           {loading ? <p className="state-message">{t('home.loading')}</p> : null}
           {error ? <p className="state-message state-message--error">{error}</p> : null}

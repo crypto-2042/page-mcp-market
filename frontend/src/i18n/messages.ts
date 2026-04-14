@@ -19,6 +19,9 @@ export const messages: Record<Locale, Record<string, string>> = {
     'home.hero.title': 'Find MCP Skills & Tools',
     'home.hero.subtitle':
       'Discover, install, and integrate pre-built tools and workflows to enhance your AI agents via the Model Context Protocol.',
+    'home.hero.eyebrow': 'MCP Marketplace',
+    'home.search.mode': 'Search mode',
+    'home.search.query': 'Search query',
     'home.search.type.name': 'Name',
     'home.search.type.domain': 'Domain',
     'home.search.placeholder.name': 'Search by repository name...',
@@ -132,6 +135,9 @@ export const messages: Record<Locale, Record<string, string>> = {
     'home.hero.title': '发现 MCP 技能与工具',
     'home.hero.subtitle':
       '发现、安装并集成预构建工具与工作流，通过 Model Context Protocol 增强你的 AI 代理。',
+    'home.hero.eyebrow': 'MCP 市场',
+    'home.search.mode': '搜索模式',
+    'home.search.query': '搜索内容',
     'home.search.type.name': '名称',
     'home.search.type.domain': '域名',
     'home.search.placeholder.name': '按仓库名称搜索...',
