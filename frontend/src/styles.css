@@ -126,8 +126,10 @@ samp {
 }
 
 .site-header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 50;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(0, 0, 0, 0.8);
@@ -232,7 +234,7 @@ samp {
 
 .site-main {
   flex: 1;
-  padding: 28px 0 56px;
+  padding: 96px 0 56px;
 }
 
 .site-footer {
@@ -440,7 +442,7 @@ samp {
   }
 
   .site-main {
-    padding: 40px 0 72px;
+    padding: 112px 0 72px;
   }
 }
 
@@ -462,5 +464,9 @@ samp {
 
   .locale-switch__button {
     flex: 1;
+  }
+
+  .site-main {
+    padding-top: 132px;
   }
 }
