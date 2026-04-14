@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { CSSProperties, ReactNode, useLayoutEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n/I18nProvider';
 
@@ -8,10 +8,37 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const { locale, setLocale, t } = useI18n();
+  const headerRef = useRef<HTMLElement | null>(null);
+  const [headerHeight, setHeaderHeight] = useState(68);
+
+  useLayoutEffect(() => {
+    const header = headerRef.current;
+
+    if (!header) {
+      return;
+    }
+
+    const updateHeaderHeight = () => {
+      setHeaderHeight(header.getBoundingClientRect().height);
+    };
+
+    updateHeaderHeight();
+
+    const resizeObserver = new ResizeObserver(updateHeaderHeight);
+    resizeObserver.observe(header);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
+
+  const shellStyle = {
+    '--site-header-height': `${headerHeight}px`,
+  } as CSSProperties;
 
   return (
-    <div className="app-shell">
-      <header className="site-header">
+    <div className="app-shell" style={shellStyle}>
+      <header ref={headerRef} className="site-header">
         <div className="shell-container site-header__inner">
           <div className="site-brand">
             <span className="material-icons site-brand__mark">hub</span>

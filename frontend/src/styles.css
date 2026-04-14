@@ -14,6 +14,7 @@
   --radius-card: 24px;
   --radius-control: 999px;
   --container-width: 1120px;
+  --site-header-height: 68px;
   --font-display: "SF Pro Display", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-text: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
@@ -104,7 +105,7 @@ h6 {
 
 p {
   margin: 0;
-  color: var(--color-ink-muted);
+  color: inherit;
 }
 
 pre,
@@ -234,7 +235,7 @@ samp {
 
 .site-main {
   flex: 1;
-  padding: 96px 0 56px;
+  padding: calc(var(--site-header-height) + 28px) 0 56px;
 }
 
 .site-footer {
@@ -323,22 +324,55 @@ samp {
 }
 
 .page-section {
+  --section-bg: var(--color-surface);
+  --section-fg: var(--color-ink);
+  --section-muted: var(--color-ink-muted);
+  --section-soft: var(--color-ink-soft);
+  --section-accent: var(--color-blue);
+  --section-border: var(--color-border-soft);
+  --section-surface: var(--color-surface-elevated);
+  --section-control-bg: var(--color-surface-elevated);
+  --section-placeholder: var(--color-ink-soft);
+  --section-shadow: var(--shadow-card);
   padding: 24px 0;
+  background: var(--section-bg);
+  color: var(--section-fg);
 }
 
 .page-section--dark {
-  background: var(--color-black);
-  color: var(--color-white);
+  --section-bg: var(--color-black);
+  --section-fg: var(--color-white);
+  --section-muted: rgba(255, 255, 255, 0.72);
+  --section-soft: rgba(255, 255, 255, 0.56);
+  --section-accent: var(--color-blue-on-dark);
+  --section-border: rgba(255, 255, 255, 0.14);
+  --section-surface: rgba(255, 255, 255, 0.06);
+  --section-control-bg: rgba(255, 255, 255, 0.06);
+  --section-placeholder: rgba(255, 255, 255, 0.48);
+  --section-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
 }
 
 .page-section--light {
-  background: var(--color-surface);
-  color: var(--color-ink);
+  --section-bg: var(--color-surface);
+  --section-fg: var(--color-ink);
+  --section-muted: var(--color-ink-muted);
+  --section-soft: var(--color-ink-soft);
+  --section-accent: var(--color-blue);
+  --section-border: var(--color-border-soft);
+  --section-surface: var(--color-surface-elevated);
+  --section-control-bg: var(--color-surface-elevated);
+  --section-placeholder: var(--color-ink-soft);
+  --section-shadow: var(--shadow-card);
+}
+
+.page-section p,
+.page-section__title {
+  color: inherit;
 }
 
 .page-section__eyebrow {
   margin-bottom: 10px;
-  color: var(--color-blue);
+  color: var(--section-accent);
   font: 600 12px/1.2 var(--font-text);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -352,8 +386,19 @@ samp {
 
 .page-section__description {
   max-width: 68ch;
+  color: var(--section-muted);
   font-size: 17px;
   line-height: 1.55;
+}
+
+.page-section .muted {
+  color: var(--section-soft);
+}
+
+.page-section .site-card {
+  border-color: var(--section-border);
+  background: var(--section-surface);
+  box-shadow: var(--section-shadow);
 }
 
 .form-field {
@@ -363,7 +408,7 @@ samp {
 
 .form-field__label {
   font: 600 14px/1.2 var(--font-text);
-  color: var(--color-ink);
+  color: var(--section-fg);
 }
 
 .form-field__control,
@@ -372,10 +417,10 @@ samp {
   width: 100%;
   min-height: 44px;
   padding: 0 14px;
-  border: 1px solid var(--color-border-soft);
+  border: 1px solid var(--section-border);
   border-radius: 16px;
-  background: var(--color-surface-elevated);
-  color: var(--color-ink);
+  background: var(--section-control-bg);
+  color: var(--section-fg);
   transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
 
@@ -387,7 +432,7 @@ samp {
 
 .form-field__control::placeholder,
 .form-field__textarea::placeholder {
-  color: var(--color-ink-soft);
+  color: var(--section-placeholder);
 }
 
 .form-field__control:focus,
@@ -440,10 +485,6 @@ samp {
   .page-section {
     padding: 40px 0;
   }
-
-  .site-main {
-    padding: 112px 0 72px;
-  }
 }
 
 @media (max-width: 767px) {
@@ -466,7 +507,4 @@ samp {
     flex: 1;
   }
 
-  .site-main {
-    padding-top: 132px;
-  }
 }
