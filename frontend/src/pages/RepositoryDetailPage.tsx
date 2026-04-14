@@ -268,25 +268,10 @@ export function RepositoryDetailPage() {
         ? 'check_circle'
         : 'upgrade';
   const installDisabled = !detail || installing || (installedRelease !== '' && installedRelease === selectedRelease);
-  const politeAnnouncement = toast?.type === 'success'
-    ? toast.message
-    : installing
-      ? t('repo.install.action.installing')
-      : loading
-        ? t('repo.loading')
-        : '';
-  const assertiveAnnouncement = toast?.type === 'error' ? toast.message : error ?? '';
-
   return (
     <main className="repository-page">
       <section className="page-section page-section--light repository-hero">
         <div className="shell-container repository-hero__inner">
-          <div aria-atomic="true" aria-live="polite" className="sr-only">
-            {politeAnnouncement}
-          </div>
-          <div aria-atomic="true" aria-live="assertive" className="sr-only">
-            {assertiveAnnouncement}
-          </div>
           <Link
             to="/"
             className="back-link"
