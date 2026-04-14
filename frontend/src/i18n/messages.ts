@@ -33,6 +33,7 @@ export const messages: Record<Locale, Record<string, string>> = {
     'home.repository.noDescription': 'No description',
     'home.empty': 'No repositories found',
     'docs.title': 'Documentation',
+    'docs.eyebrow': 'Documentation',
     'docs.subtitle':
       'This page covers key guidance for users and developers, including extension setup, repository installation, MCP resource definitions, and repository file conventions.',
     'docs.user.title': 'For Users',
@@ -149,6 +150,7 @@ export const messages: Record<Locale, Record<string, string>> = {
     'home.repository.noDescription': '暂无描述',
     'home.empty': '未找到仓库',
     'docs.title': '文档',
+    'docs.eyebrow': '文档',
     'docs.subtitle': '这里包含市场使用者与开发者的核心说明，覆盖插件安装、仓库安装、MCP 资源定义规范与仓库文件规范。',
     'docs.user.title': '面向使用者',
     'docs.user.installExtension.title': '安装插件',

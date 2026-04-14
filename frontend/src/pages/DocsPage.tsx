@@ -7,7 +7,7 @@ export function DocsPage() {
     <main className="docs-page">
       <section className="page-section page-section--light docs-intro">
         <div className="shell-container docs-intro__inner">
-          <div className="eyebrow">Documentation</div>
+          <div className="eyebrow">{t('docs.eyebrow')}</div>
           <h1 className="page-title">{t('docs.title')}</h1>
           <p className="page-copy">{t('docs.subtitle')}</p>
         </div>
@@ -54,17 +54,17 @@ export function DocsPage() {
 
             <div className="docs-example-grid">
               <article className="docs-example-card">
-                <div className="docs-example-card__label">{t('docs.dev.mcpDef.prompt')}</div>
+                <h3 className="docs-example-card__label">{t('docs.dev.mcpDef.prompt')}</h3>
                 <pre>{t('docs.dev.mcpDef.example.prompt')}</pre>
               </article>
 
               <article className="docs-example-card">
-                <div className="docs-example-card__label">{t('docs.dev.mcpDef.resource')}</div>
+                <h3 className="docs-example-card__label">{t('docs.dev.mcpDef.resource')}</h3>
                 <pre>{t('docs.dev.mcpDef.example.resource')}</pre>
               </article>
 
               <article className="docs-example-card">
-                <div className="docs-example-card__label">{t('docs.dev.mcpDef.tool')}</div>
+                <h3 className="docs-example-card__label">{t('docs.dev.mcpDef.tool')}</h3>
                 <pre>{t('docs.dev.mcpDef.example.tool')}</pre>
               </article>
             </div>
