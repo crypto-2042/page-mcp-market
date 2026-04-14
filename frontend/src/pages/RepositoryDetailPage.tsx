@@ -44,67 +44,63 @@ function writeInstalledReleaseMeta(version: string): void {
 }
 
 function PathBadge({ path }: { path: string }) {
-  return (
-    <span className="text-xs px-2 py-0.5 rounded-full border border-border-light dark:border-border-dark text-text-muted-light dark:text-text-muted-dark bg-gray-50 dark:bg-gray-800">
-      {path}
-    </span>
-  );
+  return <span className="path-badge">{path}</span>;
 }
 
 function PromptCard({ item, t }: { item: McpPrompt; t: TFunc }) {
   return (
-    <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg p-5 shadow-sm">
-      <div className="flex items-center gap-3 mb-2">
-        <h4 className="text-lg font-bold text-primary mt-0">{item.name}</h4>
+    <article className="mcp-card">
+      <div className="mcp-card__header">
+        <h3 className="mcp-card__title">{item.name}</h3>
         <PathBadge path={item.path} />
       </div>
-      <p className="text-sm text-text-muted-light dark:text-text-muted-dark leading-relaxed mb-3">
-        {item.description}
-      </p>
-      <div className="text-sm text-text-muted-light dark:text-text-muted-dark">
+      <p className="mcp-card__description">{item.description}</p>
+      <div className="mcp-card__meta">
         {t('repo.prompt.arguments')}: {item.arguments?.length ?? 0} | {t('repo.prompt.messages')}:{' '}
         {item.messages?.length ?? 0}
       </div>
       {item.messages && item.messages.length > 0 ? (
         <ExpandableCode label={t('repo.code.messages')} content={JSON.stringify(item.messages, null, 2)} />
       ) : null}
-    </div>
+    </article>
   );
 }
 
 function ResourceCard({ item, t }: { item: McpResource; t: TFunc }) {
   return (
-    <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg p-5 shadow-sm">
-      <div className="flex items-center gap-3 mb-2">
-        <h4 className="text-lg font-bold text-primary mt-0">{item.name}</h4>
+    <article className="mcp-card">
+      <div className="mcp-card__header">
+        <h3 className="mcp-card__title">{item.name}</h3>
         <PathBadge path={item.path} />
       </div>
-      <p className="text-sm text-text-muted-light dark:text-text-muted-dark leading-relaxed mb-3">
-        {item.description}
-      </p>
-      <div className="text-sm text-text-muted-light dark:text-text-muted-dark space-y-1">
-        <div>{t('repo.resource.uri')}: {item.uri}</div>
-        <div>{t('repo.resource.mime')}: {item.mimeType ?? t('repo.resource.unknown')}</div>
+      <p className="mcp-card__description">{item.description}</p>
+      <div className="mcp-card__stack">
+        <div className="mcp-card__meta-row">
+          <span className="mcp-card__meta-label">{t('repo.resource.uri')}</span>
+          <span className="mcp-card__meta-value">{item.uri}</span>
+        </div>
+        <div className="mcp-card__meta-row">
+          <span className="mcp-card__meta-label">{t('repo.resource.mime')}</span>
+          <span className="mcp-card__meta-value">{item.mimeType ?? t('repo.resource.unknown')}</span>
+        </div>
       </div>
-    </div>
+    </article>
   );
 }
 
 function ToolCard({ item, t }: { item: McpTool; t: TFunc }) {
   return (
-    <div className="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg p-5 shadow-sm">
-      <div className="flex items-center gap-3 mb-2">
-        <h4 className="text-lg font-bold text-primary mt-0">{item.name}</h4>
+    <article className="mcp-card">
+      <div className="mcp-card__header">
+        <h3 className="mcp-card__title">{item.name}</h3>
         <PathBadge path={item.path} />
       </div>
-      <p className="text-sm text-text-muted-light dark:text-text-muted-dark leading-relaxed mb-3">
-        {item.description}
-      </p>
+      <p className="mcp-card__description">{item.description}</p>
       {item.inputSchema ? (
         <ExpandableCode label={t('repo.tool.inputSchema')} content={JSON.stringify(item.inputSchema, null, 2)} />
       ) : null}
       <ExpandableCode label={t('repo.tool.execute')} content={item.execute} />
-    </div>
+    </article>
   );
 }
 
@@ -274,178 +270,151 @@ export function RepositoryDetailPage() {
   const installDisabled = installing || (installedRelease !== '' && installedRelease === selectedRelease);
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-8 flex flex-col lg:flex-row gap-8 w-full">
-      <div className="flex-1 min-w-0">
-        <div className="mb-4">
+    <main className="repository-page">
+      <section className="page-section page-section--light repository-hero">
+        <div className="shell-container repository-hero__inner">
           <Link
             to="/"
-            className="text-primary hover:underline text-sm font-medium flex items-center gap-1 mb-6 transition-colors"
+            className="back-link"
           >
-            <span className="material-icons text-sm">arrow_back</span> {t('repo.backToList')}
+            <span className="material-icons">arrow_back</span>
+            {t('repo.backToList')}
           </Link>
-        </div>
 
-        <div className="mb-8 border-b border-border-light dark:border-border-dark pb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-semibold flex items-center flex-wrap gap-3">
-              <span>{detail?.name ?? t('repo.title.fallback')}</span>
+          <div className="repository-hero__summary">
+            <div className="repository-hero__copy">
+              <h1 className="page-title">{detail?.name ?? t('repo.title.fallback')}</h1>
               {selectedRelease ? (
-                <span className="text-sm px-2 py-0.5 mt-1 rounded-full border border-border-light dark:border-border-dark text-text-muted-light dark:text-text-muted-dark bg-gray-50 dark:bg-gray-800">
-                  {selectedRelease}
-                </span>
+                <span className="version-pill">{selectedRelease}</span>
               ) : null}
-            </h1>
-            <div className="flex items-center gap-2">
+              <p className="page-copy">{detail?.description ?? t('repo.description.empty')}</p>
+            </div>
+
+            <div className="repository-hero__actions">
               <button
                 onClick={handleInstall}
                 disabled={installDisabled}
-                className={`flex items-center px-3 py-1.5 border rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                  installedRelease && installedRelease === selectedRelease
-                    ? 'border-green-200 text-green-700 bg-green-50 dark:border-green-700 dark:text-green-300 dark:bg-green-900/20'
-                    : 'border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-gray-800 bg-white dark:bg-[#21262d]'
-                }`}
+                className={installDisabled ? 'site-button is-disabled' : 'site-button'}
               >
-                <span className="material-icons text-sm mr-1">{installActionIcon}</span> {installActionLabel}
+                <span className="material-icons">{installActionIcon}</span>
+                {installActionLabel}
               </button>
-              {toast ? (
-                <div
-                  className={`rounded-lg border px-3 py-1.5 text-sm font-medium ${
-                    toast.type === 'success'
-                      ? 'bg-green-50 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-200 dark:border-green-700'
-                      : 'bg-red-50 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-200 dark:border-red-700'
-                  }`}
-                >
-                  {toast.message}
-                </div>
-              ) : null}
+              {toast ? <div className={`toast toast--${toast.type}`}>{toast.message}</div> : null}
             </div>
           </div>
-          <p className="text-lg text-text-muted-light dark:text-text-muted-dark mb-6">
-            {detail?.description ?? t('repo.description.empty')}
-          </p>
         </div>
+      </section>
 
-        {loading ? <p className="text-text-muted-light dark:text-text-muted-dark py-4">{t('repo.loading')}</p> : null}
-        {error ? <p className="text-red-500 py-4">{error}</p> : null}
-
-        <article className="prose dark:prose-invert max-w-none">
-          {isEmptyRelease && !loading && !error ? (
-            <div className="text-center py-12 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg my-8">
-              <span className="material-icons text-4xl mb-4 text-text-muted-light dark:text-text-muted-dark opacity-80">
-                extension_off
-              </span>
-              <p className="text-text-muted-light dark:text-text-muted-dark mb-0">
-                {t('repo.emptyRelease')}
-              </p>
-            </div>
-          ) : null}
-
-          {mcp.tools.length > 0 ? (
-            <div className="mb-10">
-              <h2 className="text-2xl font-semibold border-b border-border-light dark:border-border-dark pb-2 mt-8 mb-6">
-                {t('repo.section.tools')} ({mcp.tools.length})
-              </h2>
-              <div className="space-y-6">
-                {mcp.tools.map((item) => (
-                  <ToolCard key={item.id} item={item} t={t} />
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {mcp.resources.length > 0 ? (
-            <div className="mb-10">
-              <h2 className="text-2xl font-semibold border-b border-border-light dark:border-border-dark pb-2 mt-8 mb-6">
-                {t('repo.section.resources')} ({mcp.resources.length})
-              </h2>
-              <div className="space-y-6">
-                {mcp.resources.map((item) => (
-                  <ResourceCard key={item.id} item={item} t={t} />
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {mcp.prompts.length > 0 ? (
-            <div className="mb-10">
-              <h2 className="text-2xl font-semibold border-b border-border-light dark:border-border-dark pb-2 mt-8 mb-6">
-                {t('repo.section.prompts')} ({mcp.prompts.length})
-              </h2>
-              <div className="space-y-6">
-                {mcp.prompts.map((item) => (
-                  <PromptCard key={item.id} item={item} t={t} />
-                ))}
-              </div>
-            </div>
-          ) : null}
-        </article>
-      </div>
-
-      <aside className="w-full lg:w-72 flex-shrink-0 space-y-6">
-        {releases.length > 0 ? (
-          <div className="border-b border-border-light dark:border-border-dark pb-6">
-            <h3 className="text-sm font-semibold mb-3 uppercase tracking-wide text-text-muted-light dark:text-text-muted-dark">
-              {t('repo.sidebar.releases')}
-            </h3>
-            <div className="flex flex-col gap-2">
-              {releases.map((release) => (
-                <button
-                  key={release.id}
-                  className={`text-left px-3 py-2 rounded text-sm font-medium transition-colors ${
-                    release.version === selectedRelease
-                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-800 border border-transparent'
-                  }`}
-                  onClick={() => setSelectedRelease(release.version)}
-                  type="button"
-                >
-                  {release.version}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {detail ? (
-          <div className="border-b border-border-light dark:border-border-dark pb-6">
-            <h3 className="text-sm font-semibold mb-3 uppercase tracking-wide text-text-muted-light dark:text-text-muted-dark">
-              {t('repo.sidebar.details')}
-            </h3>
-            <div className="space-y-3">
-              <div>
-                <div className="text-xs text-text-muted-light dark:text-text-muted-dark font-semibold mb-1">
-                  {t('repo.sidebar.author')}
+      <section className="page-section page-section--light repository-content">
+        <div className="shell-container repository-layout">
+          <aside className="repository-sidebar">
+            {releases.length > 0 ? (
+              <section className="repository-sidebar__section">
+                <div className="repository-sidebar__eyebrow">{t('repo.sidebar.releases')}</div>
+                <div className="release-list">
+                  {releases.map((release) => (
+                    <button
+                      key={release.id}
+                      className={release.version === selectedRelease ? 'release-button is-active' : 'release-button'}
+                      onClick={() => setSelectedRelease(release.version)}
+                      type="button"
+                    >
+                      {release.version}
+                    </button>
+                  ))}
                 </div>
-                <div className="text-sm font-medium">{detail.author.name}</div>
-              </div>
-              <div>
-                <div className="text-xs text-text-muted-light dark:text-text-muted-dark font-semibold mb-1">
-                  {t('repo.sidebar.domain')}
-                </div>
-                <div className="text-sm font-medium">
-                  {detail.siteDomain ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
-                      {detail.siteDomain}
-                    </span>
-                  ) : (
-                    t('repo.sidebar.global')
-                  )}
-                </div>
-              </div>
-              {detail.score !== undefined ? (
-                <div>
-                  <div className="text-xs text-text-muted-light dark:text-text-muted-dark font-semibold mb-1">
-                    {t('repo.sidebar.score')}
+              </section>
+            ) : null}
+
+            {detail ? (
+              <section className="repository-sidebar__section">
+                <div className="repository-sidebar__eyebrow">{t('repo.sidebar.details')}</div>
+                <div className="repository-sidebar__meta">
+                  <div className="repository-meta">
+                    <div className="repository-meta__label">{t('repo.sidebar.author')}</div>
+                    <div className="repository-meta__value">{detail.author.name}</div>
                   </div>
-                  <div className="text-sm font-medium flex items-center gap-1">
-                    <span className="material-icons text-sm text-yellow-500">star</span> {detail.score.toFixed(1)}
+                  <div className="repository-meta">
+                    <div className="repository-meta__label">{t('repo.sidebar.domain')}</div>
+                    <div className="repository-meta__value">
+                      {detail.siteDomain ? (
+                        <span className="repository-chip repository-chip--muted">{detail.siteDomain}</span>
+                      ) : (
+                        t('repo.sidebar.global')
+                      )}
+                    </div>
                   </div>
+                  {detail.score !== undefined ? (
+                    <div className="repository-meta">
+                      <div className="repository-meta__label">{t('repo.sidebar.score')}</div>
+                      <div className="repository-meta__value repository-score">
+                        <span className="material-icons">star</span>
+                        {detail.score.toFixed(1)}
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
-              ) : null}
-            </div>
+              </section>
+            ) : null}
+          </aside>
+
+          <div className="repository-content__main">
+            {loading ? <p className="state-message">{t('repo.loading')}</p> : null}
+            {error ? <p className="state-message state-message--error">{error}</p> : null}
+
+            {isEmptyRelease && !loading && !error ? (
+              <section className="repository-section">
+                <div className="empty-state">
+                  <span className="material-icons empty-state__icon">extension_off</span>
+                  <p>{t('repo.emptyRelease')}</p>
+                </div>
+              </section>
+            ) : null}
+
+            {mcp.tools.length > 0 ? (
+              <section className="repository-section">
+                <div className="section-heading">
+                  <h2>{t('repo.section.tools')}</h2>
+                  <span className="repository-section__count">{mcp.tools.length}</span>
+                </div>
+                <div className="repository-section__stack">
+                  {mcp.tools.map((item) => (
+                    <ToolCard key={item.id} item={item} t={t} />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {mcp.resources.length > 0 ? (
+              <section className="repository-section">
+                <div className="section-heading">
+                  <h2>{t('repo.section.resources')}</h2>
+                  <span className="repository-section__count">{mcp.resources.length}</span>
+                </div>
+                <div className="repository-section__stack">
+                  {mcp.resources.map((item) => (
+                    <ResourceCard key={item.id} item={item} t={t} />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {mcp.prompts.length > 0 ? (
+              <section className="repository-section">
+                <div className="section-heading">
+                  <h2>{t('repo.section.prompts')}</h2>
+                  <span className="repository-section__count">{mcp.prompts.length}</span>
+                </div>
+                <div className="repository-section__stack">
+                  {mcp.prompts.map((item) => (
+                    <PromptCard key={item.id} item={item} t={t} />
+                  ))}
+                </div>
+              </section>
+            ) : null}
           </div>
-        ) : null}
-      </aside>
+        </div>
+      </section>
     </main>
   );
 }
