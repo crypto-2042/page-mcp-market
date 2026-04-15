@@ -77,7 +77,7 @@ export function Layout({ children }: LayoutProps) {
             <a
               aria-label={t('aria.githubRepository')}
               className="icon-link"
-              href="https://github.com/page-mcp-sdk"
+              href="https://github.com/crypto-2042/page-mcp-plugin"
               rel="noopener noreferrer"
               target="_blank"
             >
